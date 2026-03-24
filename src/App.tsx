@@ -2,6 +2,7 @@ import { useState } from "react";
 import KanbanBoard  from "./components/kanban/KanbanBoard";
 import ListView     from "./components/kanban/ListView";
 import TimelineView from "./components/kanban/TimelineView";
+import { Toaster } from "react-hot-toast";
 
 type View = "kanban" | "list" | "timeline";
 
@@ -15,6 +16,8 @@ function App() {
   const [view, setView] = useState<View>("kanban");
 
   return (
+    <>
+      <Toaster position="top-center"/>
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -55,6 +58,7 @@ function App() {
         <TimelineView />
       </div>
     </div>
+    </>
   );
 }
 

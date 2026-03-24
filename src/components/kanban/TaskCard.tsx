@@ -4,6 +4,7 @@ import type { Task } from "../../types/types";
 
 interface Props {
   task: Task;
+  onPointerDown:()=>void;
 }
 
 const getPriorityColor = (priority: string) => {
@@ -22,22 +23,33 @@ const getPriorityColor = (priority: string) => {
 };
 
 
-const TaskCard = memo(({task}:Props) => {
+const TaskCard = memo(({task,onPointerDown}:Props) => {
 
   return (
-     <div className="bg-white p-3 rounded shadow">
+<div
+  onPointerDown={(e) => {
+    e.preventDefault(); 
+    onPointerDown();
+  }}
+  className="bg-white p-3 rounded shadow cursor-grab active:cursor-grabbing transition-all duration-200"
+>
       <p className="text-sm font-medium">{task.title}</p>
 
       <div className="flex justify-between mt-2 text-xs">
-        <span>{task.assignee}</span>
-           <span
-          className={`text-white px-2 py-0.5 rounded ${getPriorityColor(
-            task.priority
-          )}`}
-        >
-          {task.priority}
-        </span>
-      </div>
+  <span>{task.assignee}</span>
+
+  <div className="flex gap-1">
+    <span className="bg-gray-200 px-2 py-0.5 rounded text-[10px] uppercase">
+      {task.status}
+    </span>
+
+    <span
+      className={`text-white px-2 py-0.5 rounded ${getPriorityColor(task.priority)}`}
+    >
+      {task.priority}
+    </span>
+  </div>
+</div>
 
       <p className="text-xs text-gray-500 mt-1">
         Due: {task.dueDate}
