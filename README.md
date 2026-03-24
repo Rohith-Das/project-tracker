@@ -1,73 +1,107 @@
-# React + TypeScript + Vite
+# Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive Task Management application built with React, TypeScript, Vite, and Zustand.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Three Views**: Kanban Board, List View, Timeline View
+- **Drag & Drop** reordering in Kanban
+- **Virtual Scrolling** in List View (handles 500+ tasks smoothly)
+- **500 sample tasks** with realistic data
+- **Status updates**, priority, assignee, due dates
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React 18 + TypeScript
+- Vite (build tool)
+- Zustand (state management)
+- Tailwind CSS
+- React Hot Toast
+- Custom Virtual Scrolling (no external libraries)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# Clone the repo
+git clone <https://github.com/Rohith-Das/project-tracker.git>
+cd task-manager
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Install dependencies
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Start development server
+npm run dev
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Virtual Scrolling in List View
+
+
+Rendering 500+ table rows at once causes performance issues:
+
+High memory usage
+Slow rendering and scrolling
+Laggy UI, especially on lower-end devices
+
+
+How It Works
+The implementation follows these core principles:
+
+Fixed Row Height
+Every row has a fixed height of 50px (ROW_HEIGHT = 50).
+This allows accurate mathematical calculation of positions without measuring DOM elements.
+
+Scroll Position Tracking
+We listen to the onScroll event on the scrollable container.
+scrollTop value is stored in React state.
+
+Visible Range Calculation
+Based on current scrollTop, container height, and row height, we calculate:TypeScriptstartIndex = Math.floor(scrollTop / ROW_HEIGHT) - BUFFER
+endIndex   = startIndex + visibleRows + (BUFFER * 2)
+BUFFER = 5 rows (rendered above and below the viewport for smooth scrolling).
+
+Dynamic Rendering
+Only a small slice of tasks is rendered:TypeScriptconst visibleTasks = tasks.slice(startIndex, endIndex);
+
+Spacer Technique (Padding)
+A top spacer (<div>) pushes the visible rows down to the correct position.
+A bottom spacer fills the remaining space so the scrollbar reflects the total height (totalRows * ROW_HEIGHT).
+This creates the illusion that all 500 rows exist.
+
+Sticky Header
+The table header stays fixed at the top using position: sticky.
+
+
+Key Benefits
+
+Excellent Performance: Only ~15–30 rows exist in the DOM at any time, even with 500+ tasks.
+
+Lightweight: No external dependencies.
+
+Implementation Highlights
+
+const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER);
+const endIndex = Math.min(tasks.length, startIndex + visibleRowCount + BUFFER * 2);
+
+// Total scrollable height
+const totalHeight = tasks.length * ROW_HEIGHT;
+
+// Only render visible portion
+{visibleTasks.map(task => <tr key={task.id}>...</tr>)}
+The top spacer height = startIndex * ROW_HEIGHT
+The bottom spacer height = totalHeight - (endIndex * ROW_HEIGHT)
+
+
+How to Verify It's Working
+
+Open List View
+Right-click → Inspect Element → Look at <tbody>
+You should see only 15–30 <tr> rows instead of 500
+Scroll while watching the Elements panel — rows appear/disappear dynamically
+The scrollbar remains long and behaves naturally
+
+This approach ensures the List View stays fast and responsive even as the number of tasks grows to thousands.
+
+
+

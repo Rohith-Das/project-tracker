@@ -1,6 +1,6 @@
 import { useState } from "react";
 import KanbanBoard  from "./components/kanban/KanbanBoard";
-import ListView     from "./components/kanban/ListView";
+import ListView     from "./components/List/ListView";
 import TimelineView from "./components/kanban/TimelineView";
 import { Toaster } from "react-hot-toast";
 

@@ -17,9 +17,12 @@ const KanbanBoard = () => {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [hoveredStatus, setHoveredStatus] = useState<string | null>(null)
+const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+
 
 const columnRefs = useRef<Record<string, HTMLDivElement | null>>({})
 const moveTask = useTaskStore((state) => state.moveTask)
+const reorderTask = useTaskStore((state) => state.reorderTask)
   // 🧠 Track pointer movement globally
   useEffect(() => {
   if (!draggedTask) return;
@@ -52,10 +55,14 @@ const moveTask = useTaskStore((state) => state.moveTask)
   const handleUp = () => {
     if (
       draggedTask &&
-      hoveredStatus &&
-      draggedTask.status !== hoveredStatus
+      hoveredStatus 
+     
     ) {
-      moveTask(draggedTask.id, hoveredStatus as Status);
+      reorderTask(
+  draggedTask.id,
+  hoveredStatus as Status,
+  hoverIndex ?? 0
+)
   toast.success(
   `Task updated: "${draggedTask.title}" → ${formatStatus(hoveredStatus)}`,
   {
@@ -67,6 +74,7 @@ const moveTask = useTaskStore((state) => state.moveTask)
 
     setDraggedTask(null);
     setHoveredStatus(null);
+      setHoverIndex(null) 
   };
 
   window.addEventListener("pointermove", handleMove);
@@ -76,7 +84,7 @@ const moveTask = useTaskStore((state) => state.moveTask)
     window.removeEventListener("pointermove", handleMove);
     window.removeEventListener("pointerup", handleUp);
   };
-}, [draggedTask, hoveredStatus, moveTask]);
+}, [draggedTask, hoveredStatus, hoverIndex, reorderTask]);
 
 
 
@@ -93,15 +101,21 @@ const moveTask = useTaskStore((state) => state.moveTask)
     <>
       <div className="flex gap-4">
         {Object.entries(grouped).map(([status, tasks]) => (
-          <KanbanColumn
-            key={status}
-            status={status}
-            tasks={tasks}
-            draggedTask={draggedTask} 
-             hovered={hoveredStatus === status}
-               innerRef={(el) => (columnRefs.current[status] = el)}
-            onPointerDownTask={(task) => setDraggedTask(task)} // 👈 pass handler
-          />
+       <KanbanColumn
+  key={status}
+  status={status}
+  tasks={tasks}
+  draggedTask={draggedTask}
+  hovered={hoveredStatus === status}
+  innerRef={(el) => (columnRefs.current[status] = el)}
+  onPointerDownTask={(task, e) => {
+    e.preventDefault()
+    setDraggedTask(task)
+    setPosition({ x: e.clientX, y: e.clientY })
+  }}
+  hoverIndex={hoverIndex}
+  setHoverIndex={setHoverIndex}
+/>
         ))}
       </div>
 

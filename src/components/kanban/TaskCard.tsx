@@ -1,10 +1,11 @@
 
 import { memo } from 'react'
 import type { Task } from "../../types/types";
+import type { PointerEvent as ReactPointerEvent } from "react"
 
 interface Props {
-  task: Task;
-  onPointerDown:()=>void;
+  task: Task
+  onPointerDown: (e: ReactPointerEvent) => void
 }
 
 const getPriorityColor = (priority: string) => {
@@ -29,7 +30,7 @@ const TaskCard = memo(({task,onPointerDown}:Props) => {
 <div
   onPointerDown={(e) => {
     e.preventDefault(); 
-    onPointerDown();
+    onPointerDown(e);
   }}
   className="bg-white p-3 rounded shadow cursor-grab active:cursor-grabbing transition-all duration-200"
 >

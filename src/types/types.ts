@@ -23,3 +23,6 @@ export interface DragState {
   sourceIndex: number;
   placeholderHeight: number;
 }
+
+export type SortField = "title" | "priority" | "dueDate";
+export type SortDirection = "asc" | "desc";
