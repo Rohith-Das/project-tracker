@@ -16,3 +16,10 @@ export interface OnlineUser {
   color: string;
   editing?: string;
 }
+export interface DragState {
+  isDragging: boolean;
+  draggedTask: Task | null;
+  startColumn: Status | null;
+  sourceIndex: number;
+  placeholderHeight: number;
+}
